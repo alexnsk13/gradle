@@ -1,0 +1,17 @@
+plugins {
+    id 'groovy'
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+}
+
+group 'com.anas'
+version '0.1.0'
+
+gradlePlugin {
+    plugins {
+        create('file-plugin') {
+            id = 'binary.file-plugin'
+            implementationClass = "com.anas.gradle.plugin.FilePlugin"
+        }
+    }
+}
