@@ -1,0 +1,1 @@
+apply from: "https://raw.githubusercontent.com/alexnsk13/gradle/${property('tasks.script.tag')}/task/file-tasks-assignment/gradle/fileScript.gradle"

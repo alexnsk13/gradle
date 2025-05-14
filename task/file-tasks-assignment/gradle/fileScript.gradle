@@ -1,0 +1,44 @@
+import java.nio.file.Files
+import java.nio.file.attribute.BasicFileAttributes
+import java.time.format.DateTimeFormatter
+
+tasks.register('sortFiles') {
+    group = "files"
+    description = "Sorts files in given directory into build.files subdirectories based on the sorting type [creationDate,extension]"
+
+    dependsOn tasks.named("clean")
+
+    doLast {
+        def sortAlgorithm = providers.gradleProperty("tasks.files.sortType").getOrElse("creationDate")
+        def fileDir = providers.gradleProperty("tasks.files.folder").get()
+        def sourceDir = file("$rootDir/$fileDir")
+        def outputDir = project.layout.buildDirectory.dir("$fileDir").get().asFile
+
+        sourceDir.listFiles({ File file -> file.isFile() } as FileFilter)
+                .each {
+                    String subDirName
+                    if (sortAlgorithm == 'extension') {
+                        subDirName = it.name.substring(it.name.lastIndexOf('.') + 1)
+                    } else {
+                        def attrs = Files.readAttributes(it.toPath(), BasicFileAttributes)
+                        def formatter = DateTimeFormatter.ofPattern("MM-YYYY")
+                        def date = attrs.creationTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                        subDirName = formatter.format(date)
+                    }
+
+                    def targetDir = new File(outputDir, subDirName)
+                    println targetDir
+                    targetDir.mkdirs()
+                    def targetPath = targetDir.toPath().resolve(it.name)
+
+                    Files.copy(it.toPath(), targetPath)
+                }
+    }
+}
+
+tasks.register('clean', Delete) {
+    group = "files"
+    description = "Clean build directory"
+
+    delete project.layout.buildDirectory
+}
