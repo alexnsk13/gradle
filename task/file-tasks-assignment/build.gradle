@@ -1,0 +1,3 @@
+plugins {
+    id 'binary.file-plugin' version '0.1.0'
+}
